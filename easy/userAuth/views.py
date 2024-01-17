@@ -9,15 +9,56 @@ from .models import CustomUser
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import update_session_auth_hash
 from .serializers import ChangePasswordSerializer
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.urls import reverse
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import redirect
+from django.contrib.auth import get_user_model
 
 @api_view(['POST'])
 def register_user(request):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save
+            user = serializer.save()
+
+            # Sending registration email
+            send_registration_email(request, user)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def send_registration_email(request, user):
+    subject = 'Welcome to My Hustle! Activate Your Account'
+    message = render_to_string('email/registration_email.txt', {
+        'user': user,
+        'domain': request.META['HTTP_HOST'],
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': default_token_generator.make_token(user),
+    })
+    to_email = user.email
+
+    email = EmailMessage(subject, message, to=[to_email])
+    email.send()
+
+
+
+def activate_user(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = get_user_model().objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, get_user_model().DoesNotExist):
+        user = None
+
+    if user and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        return redirect('login')  # Redirect to your login page
+    else:
+        return HttpResponse('Activation link is invalid!')
 
 
 @api_view(['POST'])
