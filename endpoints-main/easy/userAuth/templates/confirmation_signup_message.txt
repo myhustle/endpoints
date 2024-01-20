@@ -1,0 +1,7 @@
+Hello from MyHustle
+
+Dear {{ user.username }}, please click on the link below  to register an account on {{ site_name }}.
+
+To confirm this is correct, go to {{ activate_url }}
+
+Thank you for using MyHustle.

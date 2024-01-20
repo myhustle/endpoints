@@ -33,11 +33,14 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'allauth',
+    'allauth.account',
     'userAuth.apps.UserauthConfig',
     'django_rest_passwordreset',
     'mediaInteractions',
@@ -48,6 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -60,7 +64,7 @@ ROOT_URLCONF = 'myHustle.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR, 'templates/',],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,6 +78,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'myHustle.wsgi.application'
+
+
+AUTHENTICATION_BACKENDS = [
+    # ... other backends
+    'allauth.account.auth_backends.AuthenticationBackend',
+    # ... other backends
+]
 
 
 # Database
@@ -142,14 +153,25 @@ REST_FRAMEWORK = {
 }
 
 #Email Backend Configuration
-EMAIL_BACKEND = 'django.core.mail.backend.smtp.EmailBackend'
-DEFAULT_FROM_EMAIL = 'michael@hustler.com'
+SITE_ID = 2
 
-EMAIL_PORT = 587
-EMAIL_USED_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
+
+DEFAULT_FROM_EMAIL = 'myhustleinccommunications@gmail.com'
+
 EMAIL_HOST_USER = 'myhustleinccommunications@gmail.com'
 EMAIL_HOST_PASSWORD = 'owpq mmwa ufbc rulz'
+EMAIL_DEBUG = True
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# Specify the email templates for allauth
+ACCOUNT_EMAIL_CONFIRMATION_SUBJECT = 'account/confirmation_signup_subject.txt'
+ACCOUNT_EMAIL_CONFIRMATION_MESSAGE = 'account/confirmation_signup_message.txt'
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"

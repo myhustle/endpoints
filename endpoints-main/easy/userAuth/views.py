@@ -4,7 +4,9 @@ from rest_framework.response import Response
 from .models import CustomUser
 from .serializers import CustomUserSerializer
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
+# from django.core.mail import send_mail
+from allauth.account.models import EmailAddress
+from allauth.account.utils import send_email_confirmation
 from django.conf import settings
 
 class CustomUserCreateView(generics.CreateAPIView):
@@ -18,8 +20,11 @@ class CustomUserCreateView(generics.CreateAPIView):
         # Create a user without saving to the database
         user = serializer.save()
 
-        # Send email verification
-        self.send_verification_email(user)
+        # # Send email verification
+        # self.send_verification_email(user)
+
+        # Send email verification using allauth
+        send_email_confirmation(request, user)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
